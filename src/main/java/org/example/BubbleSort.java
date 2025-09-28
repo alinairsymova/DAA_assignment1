@@ -1,5 +1,4 @@
 package org.example;
-
 public class BubbleSort implements Sorter {
 
     @Override
