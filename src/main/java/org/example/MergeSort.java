@@ -1,52 +1,49 @@
 package org.example;
 
+import java.util.Arrays;
+
 public class MergeSort implements Sorter {
-    private static final int CUTOFF = 16;
 
     @Override
-    public void sort(int[] a, Metrics m) {
-        m.start();
-        int[] buffer = new int[a.length];
-        mergesort(a, buffer, 0, a.length - 1, m);
-        m.stop();
+    public void sort(int[] array, Metrics metrics) {
+        mergeSort(array, 0, array.length - 1, metrics);
     }
 
-    private void mergesort(int[] a, int[] buf, int left, int right, Metrics m) {
-        if (right - left < CUTOFF) {
-            insertionSort(a, left, right, m);
-            return;
+    private void mergeSort(int[] array, int left, int right, Metrics metrics) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            mergeSort(array, left, mid, metrics);
+            mergeSort(array, mid + 1, right, metrics);
+            merge(array, left, mid, right, metrics);
         }
-        m.enterRecursion();
-        int mid = (left + right) >>> 1;
-        mergesort(a, buf, left, mid, m);
-        mergesort(a, buf, mid + 1, right, m);
-        merge(a, buf, left, mid, right, m);
-        m.exitRecursion();
     }
 
-    private void insertionSort(int[] a, int l, int r, Metrics m) {
-        for (int i = l + 1; i <= r; i++) {
-            int key = a[i];
-            int j = i - 1;
-            while (j >= l && a[j] > key) {
-                m.compare();
-                a[j + 1] = a[j];
-                j--;
+    private void merge(int[] array, int left, int mid, int right, Metrics metrics) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+
+        int[] L = new int[n1];
+        int[] R = new int[n2];
+
+        System.arraycopy(array, left, L, 0, n1);
+        System.arraycopy(array, mid + 1, R, 0, n2);
+
+        int i = 0, j = 0, k = left;
+        while (i < n1 && j < n2) {
+            metrics.incrementComparisons();
+            if (L[i] <= R[j]) {
+                array[k++] = L[i++];
+            } else {
+                array[k++] = R[j++];
+                metrics.incrementSwaps();
             }
-            a[j + 1] = key;
         }
-    }
 
-    private void merge(int[] a, int[] buf, int l, int mIdx, int r, Metrics m) {
-        System.arraycopy(a, l, buf, l, r - l + 1);
-        m.allocate();
-        int i = l, j = mIdx + 1, k = l;
-        while (i <= mIdx && j <= r) {
-            m.compare();
-            if (buf[i] <= buf[j]) a[k++] = buf[i++];
-            else a[k++] = buf[j++];
+        while (i < n1) {
+            array[k++] = L[i++];
         }
-        while (i <= mIdx) a[k++] = buf[i++];
-        while (j <= r) a[k++] = buf[j++];
+        while (j < n2) {
+            array[k++] = R[j++];
+        }
     }
 }
