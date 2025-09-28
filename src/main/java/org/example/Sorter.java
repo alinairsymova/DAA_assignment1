@@ -1,5 +1,5 @@
 package org.example;
 
 public interface Sorter {
-    void sort(int[] a, Metrics m);
+    void sort(int[] array, Metrics metrics);
 }
